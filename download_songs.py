@@ -6,12 +6,13 @@ import os
 
 
 
-def main(aws_key,aws_secret):
+def main():
     limit = 5
-    s3_client = boto3.client('s3', aws_access_key_id=aws_access_key, aws_secret_access_key=aws_secret_key)
+    s3_client = boto3.client('s3')
     # Establecer el límite de tamaño de campo más alto
     csv.field_size_limit(5000000)
-    with open("./data_Finaly.csv" , "r", encoding="utf-8") as file:
+    with open("data_Finaly.csv" , "r", encoding="utf-8") as file:
+
         data = csv.DictReader(file) 
         i = 1
         for song in data:
@@ -44,7 +45,7 @@ def main(aws_key,aws_secret):
             except Exception as e:
                 print(f"Error al subir el archivo: {str(e)}")
 
-            if limit == i :
+            if limit == i  and limit != -1:
                 print("Acabamos hijueputa, solo tienes establecido el limite de " + limit)
                 break
 
@@ -52,11 +53,19 @@ def main(aws_key,aws_secret):
 
 if __name__ == "__main__":
 
-    # Configura tus credenciales de AWS
-    aws_access_key = 'TU_CLAVE_DE_ACCESO'
-    aws_secret_key = 'TU_CLAVE_SECRETA'
+    try:
+        with open("song/Swans - Will We Survive.mp3", 'rb') as fd:
+            response = boto3.client("s3").put_object(
+                Bucket="checho-bucket-9089",
+                Key="Swans - Will We Survive.mp3",
+                Body=fd
+            )
+            print(f"Archivo  subido exitosamente a checho bucket")
+    except FileNotFoundError:
+        print("Archivo no encontrado")
+    except Exception as e:
+        print(f"Error al subir el archivo: {str(e)}")
 
-    main(aws_key = aws_access_key , aws_secret = aws_secret_key)
 
 
 
