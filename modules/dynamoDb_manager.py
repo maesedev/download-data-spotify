@@ -1,6 +1,8 @@
 import boto3
 from botocore.exceptions import ClientError
 
+dynamodb = boto3.resource('dynamodb')
+
 def upload_song_record_to_dynamodb(table_name, item):
     """
     Sube un registro a una tabla de DynamoDB especificada.
@@ -18,7 +20,6 @@ def upload_song_record_to_dynamodb(table_name, item):
         bool: True si el registro se subió correctamente, False en caso contrario.
     """
     # Inicializar el cliente de DynamoDB
-    dynamodb = boto3.resource('dynamodb')
 
     # Obtener la tabla
     table = dynamodb.Table(table_name)
@@ -45,7 +46,6 @@ def remove_record_from_dynamodb(table_name, song_id):
         bool: True si el registro se eliminó correctamente, False en caso contrario.
     """
 
-    dynamodb = boto3.resource('dynamodb')
     table = dynamodb.Table(table_name)
     try:
         table.delete_item(Key={
@@ -57,6 +57,27 @@ def remove_record_from_dynamodb(table_name, song_id):
     else:
         print("Registro eliminado exitosamente de DynamoDB")
         return True   
+
+def exists_record_dynamodb(table_name, song_id):
+    table = dynamodb.Table(table_name)
+    try:
+        # Intenta obtener el elemento con la clave proporcionada
+        response = table.get_item(
+            TableName=table_name,
+            Key={
+                'spotify_id':song_id
+            },
+        )
+        
+        # Si hay un elemento, entonces existe
+        if 'Item' in response:
+            return True
+        else:
+            return False
+    except Exception as e:
+        # Maneja cualquier error que pueda ocurrir
+        print("Ocurrió un error al obtener el registro en dynamoDb:", e)
+        return False   
 
 # Ejemplo de uso
 if __name__ == "__main__":
