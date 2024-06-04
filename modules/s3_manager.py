@@ -16,7 +16,7 @@ def upload_file_to_s3(file_path, bucket_name, object_name):
     """
 
     # Inicializar el cliente de S3
-    s3_client = boto3.client('s3')
+    s3_client = boto3.client('s3', region_name='us-east-1')
 
     try:
         # Subir el archivo al bucket de S3

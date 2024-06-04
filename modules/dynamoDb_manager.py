@@ -1,7 +1,7 @@
 import boto3
 from botocore.exceptions import ClientError
 from colorama import Style, Fore
-dynamodb = boto3.resource('dynamodb')
+dynamodb = boto3.resource('dynamodb',region_name='us-east-1')
 
 def upload_song_record_to_dynamodb(table_name, item):
     """

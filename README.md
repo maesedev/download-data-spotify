@@ -1,12 +1,12 @@
 
-# CONFIGURAR LAS CREDENCILES DE .AWS
-Copie las credenciales de aws en la siguiente ejecutando en la terminal el siguiente comando:
+# CONFIGURAR LAS CREDENCILES DE .AWS LINUX
+Copie las credenciales de aws en la siguiente ruta ejecutando en la terminal el siguiente comando:
 `code ~/.aws/credentials`
 
-## IMPORTANTE
-agrega la siguiente linea debajo de [default] en las credenciales:
-`region=us-east-1`
+# CONFIGURAR LAS CREDENCILES DE .AWS WINDOWS
+Copie las credenciales de aws en la siguiente ruta ejecutando en la terminal el siguiente comando:
+`code C:\Users\MAESEDEV\.aws\credentials`
 
 # Dependencies
-`sudo apt install ffmpeg colorama`
-`pip install inquirer boto3 ffmpeg`
+* `$ sudo apt install ffmpeg colorama`
+* `$ pip install inquirer boto3 ffmpeg`
