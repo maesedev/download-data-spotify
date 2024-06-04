@@ -5,7 +5,7 @@ Copie las credenciales de aws en la siguiente ruta ejecutando en la terminal el 
 
 # CONFIGURAR LAS CREDENCILES DE .AWS WINDOWS
 Copie las credenciales de aws en la siguiente ruta ejecutando en la terminal el siguiente comando:
-`code C:\Users\MAESEDEV\.aws\credentials`
+* `code C:\Users\MAESEDEV\.aws\credentials`
 
 # Dependencies
 * `$ sudo apt install ffmpeg colorama`
