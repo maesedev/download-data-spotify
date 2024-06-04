@@ -129,9 +129,9 @@ if __name__ == "__main__":
         inquirer.List('size',
                         message="¿Que parte del data set vas a subir?",
                         choices=[
-                            '1. Parte 1 (0 - 30.000)',
-                            '2. Parte 2 (30.001 - 60.000)',
-                            '3. Parte 3 (60.001 - 90.001)']),]
+                            '1. Parte 1 (0 - 30.000)        [ISABELLA]',
+                            '2. Parte 2 (30.001 - 60.000)   [FRANKLIN]',
+                            '3. Parte 3 (60.001 - 90.001)   [SANTIAGO]']),]
     Part = inquirer.prompt(questions)["size"]
     Part = Part[0]
     
