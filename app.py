@@ -7,6 +7,7 @@ import os
 import pandas as pd
 import shutil
 import inquirer
+from colorama import Fore, Style
 
 def process_song(song):
     id = song.spotify_id
@@ -17,7 +18,7 @@ def process_song(song):
 
     # Si ya fue subida pass
     if exists_record_dynamodb(dynamoDb, id):
-        print(f"\"{track}\" parece ya estar subida al S3, pasando a la siguiente de la lista ")
+        print(f" {Fore.GREEN}\"{track}\"{Style.RESET_ALL} parece ya estar subida al S3, pasando a la siguiente de la lista ")
         return 0
 
     subprocess.run(f"./spotdl-4.2.5.exe download {spotify_uri} --output {songs_cache_folder}/{id}")
@@ -67,27 +68,45 @@ def main(data, limit=-1):
     #  Starting proccess
     print("Starting process")
 
+ 
+    questions = [
+        inquirer.List('procesingForce',
+                        message="¿Que porcentaje del CPU vas a usar?",
+                        choices=[
+                            '30%',
+                            '50%',
+                            '80%',
+                            '100%']),]
+    
+    ProcessingForce = inquirer.prompt(questions)["procesingForce"][:-1]
+    ProcessingForce = int(ProcessingForce) /100
+
     # Obtener el número de CPUs disponibles
     num_cpus = os.cpu_count()
-    print("Number of CPU's: " ,num_cpus )
 
     # Limitar a la mitad del número de CPUs
-    max_workers = num_cpus 
+    max_workers = round(num_cpus *ProcessingForce) 
+
+    print("Number of CPU's: " ,num_cpus )
+
     print("Number of workers: " ,max_workers )
 
-    with ThreadPoolExecutor(max_workers=max_workers) as executor:
-        futures = []
-        for index, song in data.iterrows():
-            futures.append(executor.submit(process_song, song))
-            print(index," row readed from data")
+    try:
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            futures = []
+            print("Recorriendo data...")
+            for index, song in data.iterrows():
+                futures.append(executor.submit(process_song, song))
+            
+            for future in futures: 
+                success_uploaded += future.result()
 
-        for i, future in enumerate(futures):
-            print(i,"/",len(futures))
-            success_uploaded += future.result()
-
-            if limit != -1 and success_uploaded >= limit:
-                print(f"Acabamos, alcanzamos el límite de {limit} canciones.")
-                break
+                if limit != -1 and success_uploaded >= limit:
+                    print(f"Acabamos, alcanzamos el límite de {limit} canciones.")
+                    break
+    except KeyboardInterrupt:
+        shutil.rmtree(songs_cache_folder)
+        exit()
 
     print(f"Canciones subidas: {success_uploaded}")
 
@@ -126,6 +145,10 @@ if __name__ == "__main__":
         data = data.loc[60000:90000]
     
     SO = detect_os()
+
+    if exists_record_dynamodb("uploaded_songs","This_does_Not_Exist"):
+        exit(1)
+
     main(data, limit=-1)
 
     shutil.rmtree("__songs__")

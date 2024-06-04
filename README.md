@@ -8,6 +8,5 @@ agrega la siguiente linea debajo de [default] en las credenciales:
 `region=us-east-1`
 
 # Dependencies
-Instalar AWS CLI [aqui.](https://docs.aws.amazon.com/es_es/cli/v1/userguide/cli-chap-install.html)
-`sudo apt install ffmpeg`
+`sudo apt install ffmpeg colorama`
 `pip install inquirer boto3 ffmpeg`
