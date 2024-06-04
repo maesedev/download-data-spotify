@@ -1,7 +1,7 @@
 
 # CONFIGURAR LAS CREDENCILES DE .AWS LINUX
 Copie las credenciales de aws en la siguiente ruta ejecutando en la terminal el siguiente comando:
-`code ~/.aws/credentials`
+* `code ~/.aws/credentials`
 
 # CONFIGURAR LAS CREDENCILES DE .AWS WINDOWS
 Copie las credenciales de aws en la siguiente ruta ejecutando en la terminal el siguiente comando:
