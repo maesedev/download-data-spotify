@@ -64,18 +64,25 @@ def main(data, limit=-1):
     success_uploaded = 0
 
 
+    #  Starting proccess
+    print("Starting process")
+
     # Obtener el número de CPUs disponibles
     num_cpus = os.cpu_count()
+    print("Number of CPU's: " ,num_cpus )
 
     # Limitar a la mitad del número de CPUs
-    max_workers = num_cpus // 2
+    max_workers = num_cpus 
+    print("Number of workers: " ,max_workers )
 
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         futures = []
         for index, song in data.iterrows():
             futures.append(executor.submit(process_song, song))
+            print(index," row readed from data")
 
-        for future in futures:
+        for i, future in enumerate(futures):
+            print(i,"/",len(futures))
             success_uploaded += future.result()
 
             if limit != -1 and success_uploaded >= limit:

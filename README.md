@@ -8,4 +8,5 @@ agrega la siguiente linea debajo de [default] en las credenciales:
 `region=us-east-1`
 
 # Dependencies
+sudo apt install ffmpeg
 pip install inquirer boto3 ffmpeg
