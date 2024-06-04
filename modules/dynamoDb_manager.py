@@ -27,11 +27,12 @@ def upload_song_record_to_dynamodb(table_name, item):
     try:
         # Poner el registro en la tabla
         table.put_item(Item=item)
+        print(f"Registro {item.spotify_id} subido exitosamente a DynamoDB")
     except ClientError as e:
         print(f"Error al subir el registro a DynamoDB: {e.response['Error']['Message']}")
         return False
     else:
-        print("Registro subido exitosamente a DynamoDB")
+        print(f"Error al subir el registro, seguramente de credenciales")
         return True
 
 def remove_record_from_dynamodb(table_name, song_id):
