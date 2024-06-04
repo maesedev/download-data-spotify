@@ -6,6 +6,7 @@ from modules.dynamoDb_manager import upload_song_record_to_dynamodb, exists_reco
 import os
 import pandas as pd
 import shutil
+import inquirer
 
 def process_song(song):
     id = song.spotify_id
@@ -97,11 +98,27 @@ def detect_os():
     return os_name
 
 if __name__ == "__main__":
+        
+    questions = [
+        inquirer.List('size',
+                        message="¿Que parte del data set vas a subir?",
+                        choices=[
+                            '1. Parte 1 (0 - 30.000)',
+                            '2. Parte 2 (30.001 - 60.000)',
+                            '3. Parte 3 (60.001 - 90.001)']),]
+    Part = inquirer.prompt(questions)["size"]
+    Part = Part[0]
+    
+    data = pd.read_csv("data.csv")
+
+    if Part == "1":
+        data = data.loc[0:29999]
+    if Part == "2":
+        data = data.loc[30000:59999]
+    if Part == "3":
+        data = data.loc[60000:90000]
+    
     SO = detect_os()
-    data = pd.read_csv("data_Finaly.csv")
-    from_songs = 0
-    to_songs = 2
-    songs_to_upload = data.loc[from_songs:to_songs]
     main(data, limit=-1)
 
     shutil.rmtree("__songs__")
