@@ -21,7 +21,11 @@ def process_song(song):
         print(f" {Fore.GREEN}\"{track}\"{Style.RESET_ALL} parece ya estar subida al S3, pasando a la siguiente de la lista ")
         return 0
 
-    subprocess.run(f"./spotdl-4.2.5.exe download {spotify_uri} --output {songs_cache_folder}/{id}")
+    
+    if detect_os == "Linux":
+        subprocess.run(f"spotdl '{spotify_uri}' --output {songs_cache_folder}/{id}",shell=True)
+    else:
+        subprocess.run(f"./spotdl-4.2.5.exe download {spotify_uri} --output {songs_cache_folder}/{id}")
     
     archivo_local = f"{songs_cache_folder}/{id}/{track}.mp3"
     # Nombre del archivo en S3
