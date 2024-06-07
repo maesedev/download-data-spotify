@@ -2,7 +2,7 @@ import platform
 import subprocess
 from concurrent.futures import ThreadPoolExecutor
 from modules.s3_manager import upload_file_to_s3
-from modules.dynamoDb_manager import upload_song_record_to_dynamodb, exists_record_dynamodb
+from modules.dynamoDb_manager import upload_song_record_to_dynamodb, exists_record_dynamodb, testConnection
 import os
 import pandas as pd
 import shutil
@@ -54,6 +54,12 @@ def process_song(song):
 def main(data, limit=-1):
     global songs_cache_folder
     songs_cache_folder = "__songs__"
+    
+    
+    
+    if not testConnection("uploaded_songs"):
+        print(f"Opps: no hay conexion con AWS, {Fore.RED}revisa tus credenciales{Style.RESET_ALL}")
+        exit(1)
 
     if os.path.exists(songs_cache_folder):
         shutil.rmtree(songs_cache_folder)
@@ -146,8 +152,6 @@ if __name__ == "__main__":
     
     SO = detect_os()
 
-    if exists_record_dynamodb("uploaded_songs","This_does_Not_Exist"):
-        exit(1)
 
     main(data, limit=-1)
 

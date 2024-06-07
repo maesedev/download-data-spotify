@@ -9,4 +9,4 @@ Copie las credenciales de aws en la siguiente ruta ejecutando en la terminal el 
 
 # Dependencies
 * `$ sudo apt install ffmpeg colorama`
-* `$ pip install inquirer boto3 ffmpeg`
+* `$ pip install inquirer pandas numpy boto3 ffmpeg`

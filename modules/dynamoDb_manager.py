@@ -33,6 +33,20 @@ def upload_song_record_to_dynamodb(table_name, item):
         print(f"Error al subir el registro a DynamoDB: {e.response['Error']['Message']}")
         return False
 
+def testConnection(table_name):
+    Table = dynamodb.Table(table_name)
+    try:
+        # Poner el registro en la tabla
+        Table.get_item(
+            TableName=table_name,
+            Key={
+                'spotify_id':"NonExistedId"
+            },
+        )
+        return True
+    except:
+        return False
+
 def remove_record_from_dynamodb(table_name, song_id):
     """
     Elimina un registro a una tabla de DynamoDB especificada.
@@ -50,12 +64,11 @@ def remove_record_from_dynamodb(table_name, song_id):
         table.delete_item(Key={
         'spotify_id': song_id,
     })
+        print("Registro eliminado exitosamente de DynamoDB")
+        return True   
     except ClientError as e:
         print(f"Error al eliminar el registro a DynamoDB: {e.response['Error']['Message']}")
         return False
-    else:
-        print("Registro eliminado exitosamente de DynamoDB")
-        return True   
 
 def exists_record_dynamodb(table_name, song_id):
     table = dynamodb.Table(table_name)
