@@ -86,9 +86,19 @@ def main(data, limit=-1):
     songs_cache_folder = "__songs__"
     
     
+    
     if not testConnection("uploaded_songs"):
         print(f"Opps: no hay conexion con AWS, {Fore.RED}revisa tus credenciales{Style.RESET_ALL}")
         exit(1)
+
+    if os.path.exists(songs_cache_folder):
+        shutil.rmtree(songs_cache_folder)
+    try:
+        os.mkdir(songs_cache_folder)
+    except OSError as e:
+        print("Error al crear el directorio:", e)
+
+    success_uploaded = 0
 
 
     #  Starting proccess
