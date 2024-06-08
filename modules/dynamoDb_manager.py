@@ -34,6 +34,7 @@ def upload_song_record_to_dynamodb(table_name, item):
         return False
 
 def testConnection(table_name):
+    dynamodb = boto3.resource('dynamodb',region_name='us-east-1')
     Table = dynamodb.Table(table_name)
     try:
         # Poner el registro en la tabla
