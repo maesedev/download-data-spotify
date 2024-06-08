@@ -168,7 +168,9 @@ if __name__ == "__main__":
                         choices=[
                             '1. Parte 1 (0 - 30.000)        [ISABELLA]',
                             '2. Parte 2 (30.001 - 60.000)   [FRANKLIN]',
-                            '3. Parte 3 (60.001 - 90.001)   [SANTIAGO]']),]
+                            '3. Parte 3 (60.001 - 90.001)   [SANTIAGO]',
+                            '9. All (0 - 90.001)']
+                            ),]
     Part = inquirer.prompt(questions)["size"]
     Part = Part[0]
     
@@ -180,6 +182,8 @@ if __name__ == "__main__":
         data = data.loc[30000:59999]
     if Part == "3":
         data = data.loc[60000:90000]
+    if Part == "9":
+        data = data
     
     SO = detect_os()
 
