@@ -1,8 +1,8 @@
 import platform
 import subprocess
 from concurrent.futures import ThreadPoolExecutor
-from modules.s3_manager import upload_file_to_s3
-from modules.dynamoDb_manager import upload_song_record_to_dynamodb, exists_record_dynamodb
+from modules.s3_manager import upload_file_to_s3, contar_elementos_en_bucket
+from modules.dynamoDb_manager import upload_song_record_to_dynamodb, exists_record_dynamodb, testConnection
 import os
 import pandas as pd
 import shutil
@@ -10,6 +10,7 @@ import inquirer
 from colorama import Fore, Style
 
 def process_song(song):
+    
     id = song.spotify_id
     track = song.track
     spotify_uri = "http://open.spotify.com/track/" + id 
@@ -21,14 +22,20 @@ def process_song(song):
         print(f" {Fore.GREEN}\"{track}\"{Style.RESET_ALL} parece ya estar subida al S3, pasando a la siguiente de la lista ")
         return 0
 
-    subprocess.run(f"./spotdl-4.2.5.exe download {spotify_uri} --output {songs_cache_folder}/{id}")
     
+    if detect_os() == "Linux":
+        subprocess.run(f"spotdl {spotify_uri} --output {songs_cache_folder}/{id}", shell=True)
+    else:
+        subprocess.run(f"./spotdl-4.2.5.exe download {spotify_uri} --output {songs_cache_folder}/{id}", shell=True)
+        
+        
     archivo_local = f"{songs_cache_folder}/{id}/{track}.mp3"
     # Nombre del archivo en S3
     nombre_archivo_s3 = id + " " + track
     # Nombre del bucket en S3
     nombre_bucket = 'checho-bucket-9089'
-
+    
+    
     # Renombra la cancion que pone automaticamente spotdl por el que aparece en el DataFrame
     if len(os.listdir(f'{songs_cache_folder}/{id}')):
         downloaded_song_title = os.listdir(f'{songs_cache_folder}/{id}')[0]
@@ -36,12 +43,22 @@ def process_song(song):
             os.rename(f"{songs_cache_folder}/{id}/{downloaded_song_title}" , archivo_local  )
         except OSError as e:
             pass    
+        
         response = upload_file_to_s3(file_path=archivo_local , bucket_name=nombre_bucket,object_name=nombre_archivo_s3)
-
+        
+        
+        
+        
+        
+        
+        
+        
+        
         if response:
             record = {
                 'spotify_id': id,
                 'song_s3_key': f'{id} {track}' }
+                
             upload_song_record_to_dynamodb(table_name="uploaded_songs" , item=record)
             return 1
 
@@ -51,18 +68,27 @@ def process_song(song):
     
     shutil.rmtree(f"{songs_cache_folder}/{id}")
 
+
+
+
+
+
+
+
+
+
+
+'''
+Funcion principal
+'''
 def main(data, limit=-1):
     global songs_cache_folder
     songs_cache_folder = "__songs__"
-
-    if os.path.exists(songs_cache_folder):
-        shutil.rmtree(songs_cache_folder)
-    try:
-        os.mkdir(songs_cache_folder)
-    except OSError as e:
-        print("Error al crear el directorio:", e)
-
-    success_uploaded = 0
+    
+    
+    if not testConnection("uploaded_songs"):
+        print(f"Opps: no hay conexion con AWS, {Fore.RED}revisa tus credenciales{Style.RESET_ALL}")
+        exit(1)
 
 
     #  Starting proccess
@@ -91,26 +117,27 @@ def main(data, limit=-1):
 
     print("Number of workers: " ,max_workers )
 
-    try:
-        with ThreadPoolExecutor(max_workers=max_workers) as executor:
-            futures = []
-            print("Recorriendo data...")
-            for index, song in data.iterrows():
-                futures.append(executor.submit(process_song, song))
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        futures = []
+        print("Recorriendo data...")
+        for index, song in data.iterrows():
+            futures.append(executor.submit(process_song, song))
+        
+        for future in futures: 
+            future.result()
+
             
-            for future in futures: 
-                success_uploaded += future.result()
-
-                if limit != -1 and success_uploaded >= limit:
-                    print(f"Acabamos, alcanzamos el límite de {limit} canciones.")
-                    break
-    except KeyboardInterrupt:
-        shutil.rmtree(songs_cache_folder)
-        exit()
-
-    print(f"Canciones subidas: {success_uploaded}")
+            if limit != -1 and success_uploaded >= limit:
+                print(f"Acabamos, alcanzamos el límite de {limit} canciones.")
+                break
+            
 
     shutil.rmtree(songs_cache_folder)
+
+
+
+
+
 
 def detect_os():
     # Método 1: Usando el módulo platform
@@ -146,8 +173,6 @@ if __name__ == "__main__":
     
     SO = detect_os()
 
-    if exists_record_dynamodb("uploaded_songs","This_does_Not_Exist"):
-        exit(1)
 
     main(data, limit=-1)
 

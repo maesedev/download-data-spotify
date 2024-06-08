@@ -1,7 +1,6 @@
 import boto3
 from botocore.exceptions import ClientError
 from colorama import Style, Fore
-dynamodb = boto3.resource('dynamodb',region_name='us-east-1')
 
 def upload_song_record_to_dynamodb(table_name, item):
     """
@@ -21,6 +20,7 @@ def upload_song_record_to_dynamodb(table_name, item):
     """
     # Inicializar el cliente de DynamoDB
 
+    dynamodb = boto3.resource('dynamodb',region_name='us-east-1')
     # Obtener la tabla
     table = dynamodb.Table(table_name)
 
@@ -31,6 +31,22 @@ def upload_song_record_to_dynamodb(table_name, item):
         return True
     except ClientError as e:
         print(f"Error al subir el registro a DynamoDB: {e.response['Error']['Message']}")
+        return False
+
+def testConnection(table_name):
+
+    dynamodb = boto3.resource('dynamodb',region_name='us-east-1')
+    Table = dynamodb.Table(table_name)
+    try:
+        # Poner el registro en la tabla
+        Table.get_item(
+            TableName=table_name,
+            Key={
+                'spotify_id':"NonExistedId"
+            },
+        )
+        return True
+    except:
         return False
 
 def remove_record_from_dynamodb(table_name, song_id):
@@ -45,19 +61,23 @@ def remove_record_from_dynamodb(table_name, song_id):
         bool: True si el registro se eliminó correctamente, False en caso contrario.
     """
 
+
+    dynamodb = boto3.resource('dynamodb',region_name='us-east-1')
     table = dynamodb.Table(table_name)
     try:
         table.delete_item(Key={
         'spotify_id': song_id,
     })
+        print("Registro eliminado exitosamente de DynamoDB")
+        return True   
     except ClientError as e:
         print(f"Error al eliminar el registro a DynamoDB: {e.response['Error']['Message']}")
         return False
-    else:
-        print("Registro eliminado exitosamente de DynamoDB")
-        return True   
 
 def exists_record_dynamodb(table_name, song_id):
+    
+
+    dynamodb = boto3.resource('dynamodb',region_name='us-east-1')
     table = dynamodb.Table(table_name)
     try:
         # Intenta obtener el elemento con la clave proporcionada
