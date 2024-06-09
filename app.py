@@ -46,14 +46,7 @@ def process_song(song):
         
         response = upload_file_to_s3(file_path=archivo_local , bucket_name=nombre_bucket,object_name=nombre_archivo_s3)
         
-        
-        
-        
-        
-        
-        
-        
-        
+        shutil.rmtree(f"{songs_cache_folder}/{id}")
         if response:
             record = {
                 'spotify_id': id,
@@ -64,9 +57,9 @@ def process_song(song):
 
     else:
         print(f"Hubo un error al subir la cancion '{track}'")
+        shutil.rmtree(f"{songs_cache_folder}/{id}")
         return 0
     
-    shutil.rmtree(f"{songs_cache_folder}/{id}")
 
 
 
