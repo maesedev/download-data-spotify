@@ -159,24 +159,39 @@ if __name__ == "__main__":
         inquirer.List('size',
                         message="¿Que parte del data set vas a subir?",
                         choices=[
-                            '1. Parte 1 (0 - 30.000)        [ISABELLA]',
-                            '2. Parte 2 (30.001 - 60.000)   [FRANKLIN]',
-                            '3. Parte 3 (60.001 - 90.001)   [SANTIAGO]',
-                            '9. All (0 - 90.001)']
-                            ),]
+                            '1. (   0  - 9999  ) [Isabella]',
+                            '2. (10000 - 19999 ) [Isabella]',
+                            '3. (20000 - 29999 ) [Isabella]',
+                            '4. (30000 - 39999 ) [Franklin]',
+                            '5. (40000 - 49999 ) [Franklin]',
+                            '6. (50000 - 59999 ) [Franklin]',
+                            '7. (60000 - 69999 ) [Santiago]',
+                            '8. (70000 - 79999 ) [Santiago]',
+                            '9. (80000 - 90000 ) [Santiago]']
+                            )]
     Part = inquirer.prompt(questions)["size"]
     Part = Part[0]
     
     data = pd.read_csv("data.csv")
 
     if Part == "1":
-        data = data.loc[0:29999]
+        data = data.loc[0:9999]
     if Part == "2":
-        data = data.loc[30000:59999]
+        data = data.loc[10000:19999]
     if Part == "3":
-        data = data.loc[60000:90000]
+        data = data.loc[20000:29999]
+    if Part == "4":
+        data = data.loc[30000:39999]
+    if Part == "5":
+        data = data.loc[40000:49999]
+    if Part == "6":
+        data = data.loc[50000:59999]
+    if Part == "7":
+        data = data.loc[60000:69999]
+    if Part == "8":
+        data = data.loc[70000:79999]
     if Part == "9":
-        data = data
+        data = data.loc[80000:90000]
     
     SO = detect_os()
 
