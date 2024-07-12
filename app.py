@@ -20,6 +20,7 @@ def process_song(song):
     # Si ya fue subida pass
     if exists_record_dynamodb(dynamoDb, id):
         print(f" {Fore.GREEN}\"{track}\"{Style.RESET_ALL} parece ya estar subida al S3, pasando a la siguiente de la lista ")
+        
         return 0
 
     
