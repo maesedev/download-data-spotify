@@ -1,8 +1,6 @@
 import platform
 import subprocess
 from concurrent.futures import ThreadPoolExecutor
-from modules.s3_manager import upload_file_to_s3, contar_elementos_en_bucket
-from modules.dynamoDb_manager import upload_song_record_to_dynamodb, exists_record_dynamodb, testConnection
 import os
 import pandas as pd
 import shutil
@@ -14,18 +12,17 @@ def process_song(song):
     
     id = song.spotify_id
     track = song.track
-    spotify_uri = "http://open.spotify.com/track/" + id 
+    spotify_uri = f"http://open.spotify.com/track/{id}" 
     
     if detect_os() == "Linux":
-        subprocess.run(f"spotdl {spotify_uri} --output {songs_folder}", shell=True)
+        subprocess.run(f"spotdl {spotify_uri}  --output {songs_folder}  --format mp3", shell=True)
     else:
-        subprocess.run(f"./spotdl-4.2.5.exe download {spotify_uri} --output {songs_folder}/{id} --format wav", shell=True)
+        subprocess.run(f"./spotdl-4.2.5.exe download {spotify_uri} --output {songs_folder}/{id} --format mp3", shell=True)
     
     # path con el que se guardo 
-    archivo_local = f"{songs_folder}/{id}/{track}.mp3"
+    archivo_local = f"{songs_folder}/{track}.mp3"
     
     print(f"se descargo la cancion {Fore.LIGHTMAGENTA_EX}{archivo_local}{Style.RESET_ALL}")
-    
     
 
 def main(data, limit=-1):
