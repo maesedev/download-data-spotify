@@ -1,6 +1,6 @@
 ## Dependencies
 * `$ sudo apt install ffmpeg `
-* `$ pip nstall inquirer pandas numpy boto3 ffmpeg colorama spotdl`
+* `$ pip install -r requirements.txt `
 
 
 ## Running the script

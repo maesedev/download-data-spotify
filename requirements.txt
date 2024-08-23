@@ -1,0 +1,6 @@
+pandas
+inquirer
+colorama
+numpy
+ffmpeg
+spotdl
