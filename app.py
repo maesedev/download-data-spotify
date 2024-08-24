@@ -3,7 +3,6 @@ import subprocess
 from concurrent.futures import ThreadPoolExecutor
 import os
 import pandas as pd
-import shutil
 import inquirer
 from colorama import Fore, Style
 
@@ -53,17 +52,19 @@ def main(data, limit=-1):
     global songs_folder
     songs_folder = "__songs__"
 
-    if os.path.exists(songs_folder):
-        shutil.rmtree(songs_folder)
-    try:
-        os.mkdir(songs_folder)
-    except OSError as e:
-        print("Error al crear el directorio:", e)
+    if not (os.path.exists(songs_folder)):
+        try:
+            os.mkdir(songs_folder)
+        except OSError as e:
+            print("Error al crear el directorio:", e)
+
+    last_item_saved(path="__songs__")
+    get_song_position(data, song="swordland")
 
     success_uploaded = 0
 
     # Inicio del proceso
-    print("Starting process")
+    print("\nStarting process")
     questions = [
         inquirer.List(
             "processing_force",
@@ -108,7 +109,11 @@ def last_item_saved(path):
     last = subprocess.check_output("ls -Art | tail -n 1", shell=True, cwd=path)
     # Decodifica y elimina espacios blancos
     last = last.decode("utf-8").strip()
-    print(f"\nÚltimo ítem guardado en la carpeta: {last}\n")
+    print(
+        "\n-----------------------------------\n" +
+        f"Último ítem guardado en la carpeta: {last}" +
+        "\n-----------------------------------\n"
+        )
 
 
 def get_song_position(data, song):
@@ -191,8 +196,4 @@ if __name__ == "__main__":
         data = data.loc[80000:]
 
     detect_os()
-
-    last_item_saved(path="__songs__")
-    get_song_position(data, song="swordland")
-    # main(data, limit=-1)
-    shutil.rmtree("__songs__")
+    main(data, limit=-1)
