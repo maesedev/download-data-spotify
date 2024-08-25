@@ -81,8 +81,7 @@ def process_song(song):
 
     if detect_os() == "Linux":
         subprocess.run(
-            f"spotdl {spotify_uri} --output {songs_folder} --format mp3",
-            shell=True
+            f"spotdl {spotify_uri} --output {songs_folder} --format mp3", shell=True
         )
     else:
         subprocess.run(
@@ -103,45 +102,6 @@ def process_song(song):
         f"Se descargó la canción {Fore.LIGHTMAGENTA_EX}{archivo_local}",
         f"{Style.RESET_ALL}",
     )
-
-
-def get_latest_file(path):
-    """
-    Imprime el último archivo guardado en una carpeta dada.
-    Args:
-        path (str): Ruta de la carpeta.
-    """
-
-    # Lista todos los archivos en el directorio especificado
-    files = os.listdir(path)
-
-    # Filtra solo los archivos (excluye directorios)
-    files = [f for f in files if os.path.isfile(os.path.join(path, f))]
-
-    # Ordena los archivos por fecha de modificación (último primero)
-    files.sort(key=lambda x: os.path.getmtime(os.path.join(path, x)),
-               reverse=True)
-
-    # Retorna el primer archivo de la lista (el más reciente)
-    return files[0] if files else None
-
-
-def get_song_position(data, song):
-    """
-    Obtiene la posición de una canción en un DataFrame basado en el valor de
-    'track'.
-
-    Args:
-        data (pd.DataFrame): DataFrame que contiene información sobre las
-                             canciones.
-        song (str): Nombre de la canción a buscar en el DataFrame.
-
-    Returns:
-        pd.DataFrame: Fila(s) del DataFrame donde se encuentra la canción.
-    """
-    song_position = data.loc[data["track"] == song]
-    print(f"Id: {song_position}")
-    return song_position
 
 
 def detect_os():
