@@ -22,7 +22,6 @@ def main(data, limit=-1):
 
     if not (os.path.exists(songs_folder)):
         try:
-
             os.mkdir(songs_folder)
         except OSError as e:
             print("Error al crear el directorio:", e)
