@@ -6,8 +6,6 @@ import pandas as pd
 import inquirer
 from colorama import Fore, Style
 
-    
-
 
 def main(data, limit=-1):
     """
@@ -30,7 +28,7 @@ def main(data, limit=-1):
             print("Error al crear el directorio:", e)
 
     get_latest_file(path="__songs__")
-    get_song_position(data, song="swordland")
+    get_song_position(data, song="Church Babies")
 
     success_uploaded = 0
 
@@ -70,7 +68,6 @@ def main(data, limit=-1):
                 break
 
 
-
 def process_song(song):
     """
     Procesa y descarga una canción de Spotify usando `spotdl`.
@@ -97,7 +94,7 @@ def process_song(song):
                 "--output",
                 f"./{songs_folder}",
                 "--format",
-                "mp3"
+                "mp3",
             ]
         )
 
@@ -107,25 +104,25 @@ def process_song(song):
         f"Se descargó la canción {Fore.LIGHTMAGENTA_EX}{archivo_local}",
         f"{Style.RESET_ALL}",
     )
-    
-    
-    
+
+
 def get_latest_file(path):
     """
     Imprime el último archivo guardado en una carpeta dada.
     Args:
         path (str): Ruta de la carpeta.
     """
-    
+
     # Lista todos los archivos en el directorio especificado
     files = os.listdir(path)
-    
+
     # Filtra solo los archivos (excluye directorios)
     files = [f for f in files if os.path.isfile(os.path.join(path, f))]
-    
+
     # Ordena los archivos por fecha de modificación (último primero)
-    files.sort(key=lambda x: os.path.getmtime(os.path.join(path, x)), reverse=True)
-    
+    files.sort(key=lambda x: os.path.getmtime(os.path.join(path, x)),
+               reverse=True)
+
     # Retorna el primer archivo de la lista (el más reciente)
     return files[0] if files else None
 
@@ -143,7 +140,7 @@ def get_song_position(data, song):
     Returns:
         pd.DataFrame: Fila(s) del DataFrame donde se encuentra la canción.
     """
-    song_position = data.loc[data['track'] == song]
+    song_position = data.loc[data["track"] == song]
     print(f"Id: {song_position}")
     return song_position
 
@@ -210,4 +207,5 @@ if __name__ == "__main__":
         data = data.loc[80000:]
 
     detect_os()
+    # data = data.loc[33690:]
     main(data, limit=-1)
