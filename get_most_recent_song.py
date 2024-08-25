@@ -46,8 +46,11 @@ if __name__ == "__main__":
     folder = "__songs__"
     data = pandas.read_csv("data.csv")
     song = get_latest_file(folder)
+    
     print("=============-------------------------------------================")
     print(f"{Fore.CYAN}  La ultima cancion descargada fue {song} {Style.RESET_ALL}")
-    print("\tId: " + get_song_position(data,song)["track"])
+    
+    song = input("Ingrese el nombre de la cancion")
+    print("\tId: " + get_song_position(data,song))
     print("=============-------------------------------------================")
     
