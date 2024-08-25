@@ -166,4 +166,5 @@ if __name__ == "__main__":
         data = data.loc[80000:]
 
     detect_os()
+    data = data.loc[:]
     main(data, limit=-1)

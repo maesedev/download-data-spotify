@@ -3,6 +3,7 @@ import pandas
 from colorama import Fore, Style
 import re
 
+
 def get_song_position(data, song):
     """
     Obtiene la posición de una canción en un DataFrame basado en el valor de
@@ -16,17 +17,19 @@ def get_song_position(data, song):
     Returns:
         pd.DataFrame: Fila(s) del DataFrame donde se encuentra la canción.
     """
-    song_position = data[data['track'].apply(lambda x: normalize_text(x)).str.contains(song)]
-
+    song_position = data[
+        data["track"].apply(lambda x: normalize_text(x)).str.contains(song)
+    ]
 
     print(f"Id: {song_position}")
     return song_position
+
 
 def normalize_text(text):
     # Convertir a minúsculas
     text = text.lower()
     # Eliminar caracteres no alfabéticos (mantener espacios)
-    text = re.sub(r'[^a-z0-9\s]', '', text)
+    text = re.sub(r"[^a-z0-9\s]", "", text)
     return text
 
 
@@ -57,10 +60,8 @@ if __name__ == "__main__":
     song = get_latest_file(folder)
 
     print("=============-------------------------------------================")
-    print(
-        f"  La ultima cancion descargada fue {Fore.CYAN}{song}"
-        f"{Style.RESET_ALL}"
-        )
+    print(f"  La ultima cancion descargada fue {Fore.CYAN}{song}"
+          f"{Style.RESET_ALL}")
 
     song = normalize_text(input("Ingrese el nombre de la cancion: "))
     get_song_position(data, song)
