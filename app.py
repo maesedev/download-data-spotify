@@ -26,9 +26,15 @@ def process_song(song):
         )
     else:
         subprocess.run(
-            f"./spotdl-4.2.5.exe download {spotify_uri} --output",
-            f"{songs_folder}/{spotify_id} --format mp3",
-            shell=True,
+            [
+                "./spotdl-4.2.5.exe",
+                "download",
+                spotify_uri,
+                "--output",
+                f"./{songs_folder}",
+                "--format",
+                "mp3"
+            ]
         )
 
     # Ruta del archivo guardado
@@ -58,8 +64,8 @@ def main(data, limit=-1):
         except OSError as e:
             print("Error al crear el directorio:", e)
 
-    last_item_saved(path="__songs__")
-    get_song_position(data, song="swordland")
+    # last_item_saved(path="__songs__")
+    # get_song_position(data, song="swordland")
 
     success_uploaded = 0
 
@@ -102,7 +108,6 @@ def main(data, limit=-1):
 def last_item_saved(path):
     """
     Imprime el último archivo guardado en una carpeta dada.
-
     Args:
         path (str): Ruta de la carpeta.
     """
