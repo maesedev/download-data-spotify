@@ -6,43 +6,7 @@ import pandas as pd
 import inquirer
 from colorama import Fore, Style
 
-
-def process_song(song):
-    """
-    Procesa y descarga una canción de Spotify usando `spotdl`.
-
-    Args:
-        song (pd.Series): Datos de la canción que incluyen `spotify_id`
-                          y `track`.
-    """
-    spotify_id = song.spotify_id
-    track = song.track
-    spotify_uri = f"http://open.spotify.com/track/{spotify_id}"
-
-    if detect_os() == "Linux":
-        subprocess.run(
-            f"spotdl {spotify_uri} --output {songs_folder} --format mp3",
-            shell=True
-        )
-    else:
-        subprocess.run(
-            [
-                "./spotdl-4.2.5.exe",
-                "download",
-                spotify_uri,
-                "--output",
-                f"./{songs_folder}",
-                "--format",
-                "mp3"
-            ]
-        )
-
-    # Ruta del archivo guardado
-    archivo_local = f"{songs_folder}/{track}.mp3"
-    print(
-        f"Se descargó la canción {Fore.LIGHTMAGENTA_EX}{archivo_local}",
-        f"{Style.RESET_ALL}",
-    )
+    
 
 
 def main(data, limit=-1):
@@ -60,12 +24,13 @@ def main(data, limit=-1):
 
     if not (os.path.exists(songs_folder)):
         try:
+
             os.mkdir(songs_folder)
         except OSError as e:
             print("Error al crear el directorio:", e)
 
-    # last_item_saved(path="__songs__")
-    # get_song_position(data, song="swordland")
+    get_latest_file(path="__songs__")
+    get_song_position(data, song="swordland")
 
     success_uploaded = 0
 
@@ -105,20 +70,64 @@ def main(data, limit=-1):
                 break
 
 
-def last_item_saved(path):
+
+def process_song(song):
+    """
+    Procesa y descarga una canción de Spotify usando `spotdl`.
+
+    Args:
+        song (pd.Series): Datos de la canción que incluyen `spotify_id`
+                          y `track`.
+    """
+    spotify_id = song.spotify_id
+    track = song.track
+    spotify_uri = f"http://open.spotify.com/track/{spotify_id}"
+
+    if detect_os() == "Linux":
+        subprocess.run(
+            f"spotdl {spotify_uri} --output {songs_folder} --format mp3",
+            shell=True
+        )
+    else:
+        subprocess.run(
+            [
+                "./spotdl-4.2.5.exe",
+                "download",
+                spotify_uri,
+                "--output",
+                f"./{songs_folder}",
+                "--format",
+                "mp3"
+            ]
+        )
+
+    # Ruta del archivo guardado
+    archivo_local = f"{songs_folder}/{track}.mp3"
+    print(
+        f"Se descargó la canción {Fore.LIGHTMAGENTA_EX}{archivo_local}",
+        f"{Style.RESET_ALL}",
+    )
+    
+    
+    
+def get_latest_file(path):
     """
     Imprime el último archivo guardado en una carpeta dada.
     Args:
         path (str): Ruta de la carpeta.
     """
-    last = subprocess.check_output("ls -Art | tail -n 1", shell=True, cwd=path)
-    # Decodifica y elimina espacios blancos
-    last = last.decode("utf-8").strip()
-    print(
-        "\n-----------------------------------\n" +
-        f"Último ítem guardado en la carpeta: {last}" +
-        "\n-----------------------------------\n"
-        )
+    
+    # Lista todos los archivos en el directorio especificado
+    files = os.listdir(path)
+    
+    # Filtra solo los archivos (excluye directorios)
+    files = [f for f in files if os.path.isfile(os.path.join(path, f))]
+    
+    # Ordena los archivos por fecha de modificación (último primero)
+    files.sort(key=lambda x: os.path.getmtime(os.path.join(path, x)), reverse=True)
+    
+    # Retorna el primer archivo de la lista (el más reciente)
+    return files[0] if files else None
 
 
 def get_song_position(data, song):
