@@ -27,8 +27,7 @@ def main(data, limit=-1):
         except OSError as e:
             print("Error al crear el directorio:", e)
 
-    get_latest_file(path="__songs__")
-    get_song_position(data, song="Church Babies")
+    # get_song_position(data, song="Church Babies")
 
     success_uploaded = 0
 
@@ -207,5 +206,4 @@ if __name__ == "__main__":
         data = data.loc[80000:]
 
     detect_os()
-    # data = data.loc[33690:]
     main(data, limit=-1)
