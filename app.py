@@ -51,10 +51,12 @@ def main(data, limit=-1):
     print("Number of CPUs: ", num_cpus)
     print("Number of workers: ", max_workers)
 
+    data_filtered = filter_downloaded_songs(data, '__songs__')
+
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         futures = []
         print("Recorriendo data...")
-        for index, song in data.iterrows():
+        for index, song in data_filtered.iterrows():
             futures.append(executor.submit(process_song, song))
 
         for future in futures:
@@ -214,6 +216,5 @@ if __name__ == "__main__":
         data = data.loc[80000:]
 
     detect_os()
-    data_filtered = filter_downloaded_songs(data, '__songs__')
     # data = data.loc[:]
-    main(data_filtered, limit=-1)
+    main(data, limit=-1)
