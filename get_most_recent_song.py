@@ -1,6 +1,7 @@
 import os
 import pandas
-from colorama import Fore,Style
+from colorama import Fore, Style
+
 
 def get_song_position(data, song):
     """
@@ -16,10 +17,9 @@ def get_song_position(data, song):
         pd.DataFrame: Fila(s) del DataFrame donde se encuentra la canción.
     """
     song_position = data.loc[data["track"] == song]
-    
+
     print(f"Id: {song_position}")
     return song_position
-
 
 
 def get_latest_file(path):
@@ -36,7 +36,8 @@ def get_latest_file(path):
     files = [f for f in files if os.path.isfile(os.path.join(path, f))]
 
     # Ordena los archivos por fecha de modificación (último primero)
-    files.sort(key=lambda x: os.path.getmtime(os.path.join(path, x)), reverse=True)
+    files.sort(key=lambda x: os.path.getmtime(os.path.join(path, x)),
+               reverse=True)
 
     # Retorna el primer archivo de la lista (el más reciente)
     return files[0] if files else None
@@ -46,11 +47,13 @@ if __name__ == "__main__":
     folder = "__songs__"
     data = pandas.read_csv("data.csv")
     song = get_latest_file(folder)
-    
+
     print("=============-------------------------------------================")
-    print(f"{Fore.CYAN}  La ultima cancion descargada fue {song} {Style.RESET_ALL}")
-    
-    song = input("Ingrese el nombre de la cancion")
-    print("\tId: " + get_song_position(data,song))
+    print(
+        f"{Fore.CYAN}  La ultima cancion descargada fue {song}"
+        f"{Style.RESET_ALL}"
+        )
+
+    song = input("Ingrese el nombre de la cancion: ")
+    get_song_position(data, song)
     print("=============-------------------------------------================")
-    
