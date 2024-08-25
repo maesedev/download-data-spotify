@@ -27,8 +27,6 @@ def main(data, limit=-1):
         except OSError as e:
             print("Error al crear el directorio:", e)
 
-    # get_song_position(data, song="Church Babies")
-
     success_uploaded = 0
 
     # Inicio del proceso
@@ -81,7 +79,8 @@ def process_song(song):
 
     if detect_os() == "Linux":
         subprocess.run(
-            f"spotdl {spotify_uri} --output {songs_folder} --format mp3", shell=True
+            f"spotdl {spotify_uri} --output {songs_folder} --format mp3",
+            shell=True
         )
     else:
         subprocess.run(
