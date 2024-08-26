@@ -2,6 +2,7 @@ import platform
 import subprocess
 from concurrent.futures import ThreadPoolExecutor
 import os
+import difflib
 import pandas as pd
 import inquirer
 from colorama import Fore, Style
@@ -50,10 +51,12 @@ def main(data, limit=-1):
     print("Number of CPUs: ", num_cpus)
     print("Number of workers: ", max_workers)
 
+    data_filtered = filter_downloaded_songs(data, '__songs__')
+
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         futures = []
         print("Recorriendo data...")
-        for index, song in data.iterrows():
+        for index, song in data_filtered.iterrows():
             futures.append(executor.submit(process_song, song))
 
         for future in futures:
@@ -122,6 +125,55 @@ def detect_os():
     return os_name
 
 
+def filter_downloaded_songs(data, folder_path, threshold=0.6):
+    """
+    Filtra las canciones que ya han sido descargadas de un DataFrame usando
+    coincidencia parcial en el nombre del artista y la canción.
+
+    Args:
+        data (pd.DataFrame): DataFrame que contiene información sobre las
+                             canciones.
+        folder_path (str): Ruta de la carpeta donde se guardan las canciones
+                           descargadas.
+        threshold (float, opcional): Umbral de similitud para considerar una
+                                     canción como descargada. Valor por
+                                     defecto: 0.6.
+
+    Returns:
+        pd.DataFrame: DataFrame con las canciones que aún no han sido
+                      descargadas.
+    """
+    # Obtener lista de archivos en la carpeta de canciones
+    downloaded_files = os.listdir(folder_path)
+
+    print("Escaneando canciones...")
+
+    # Extraer los nombres de las canciones descargadas (sin extensión)
+    downloaded_tracks = [os.path.splitext(f)[0] for f in downloaded_files]
+
+    # Función auxiliar para determinar si una canción ya está descargada
+    def is_downloaded(artist, track):
+        # Concatenar el nombre del artista y la canción como están en el
+        # archivo mp3
+        print(f"Artista: {artist}, Canción: {track}")
+        search_str = f"{artist} - {track}"
+        matches = difflib.get_close_matches(
+            search_str, downloaded_tracks, n=1, cutoff=threshold
+        )
+        return len(matches) > 0
+
+    print("Filtrando data...")
+
+    # Filtrar el DataFrame para mantener solo las canciones que no han sido
+    # descargadas
+    data_filtered = data[
+        ~data.apply(lambda row: is_downloaded(row["artist"], row["track"]),
+                    axis=1)
+    ]
+
+    return data_filtered
+
+
 if __name__ == "__main__":
     questions = [
         inquirer.List(
@@ -164,5 +216,5 @@ if __name__ == "__main__":
         data = data.loc[80000:]
 
     detect_os()
-    data = data.loc[:]
+    # data = data.loc[:]
     main(data, limit=-1)
