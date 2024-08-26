@@ -1,5 +1,6 @@
 import platform
 import subprocess
+from subprocess import Popen, PIPE
 from concurrent.futures import ThreadPoolExecutor
 import os
 import difflib
@@ -80,10 +81,15 @@ def process_song(song):
     spotify_uri = f"http://open.spotify.com/track/{spotify_id}"
 
     if detect_os() == "Linux":
-        subprocess.run(
-            f"spotdl {spotify_uri} --output {songs_folder} --format mp3",
-            shell=True
-        )
+        
+        p = Popen(["spotdl",spotify_uri,"--output",songs_folder,"--format","mp3"] 
+                  ,stderr=PIPE)
+
+        out, err = p.communicate()
+
+        if p.returncode != 0:
+            print("ERROR: cancion no se pudo descargar") 
+            
     else:
         subprocess.run(
             [
@@ -216,5 +222,5 @@ if __name__ == "__main__":
         data = data.loc[80000:]
 
     detect_os()
-    # data = data.loc[:]
+    # data = data.loc[20104:]
     main(data, limit=-1)
