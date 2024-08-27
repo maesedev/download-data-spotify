@@ -152,6 +152,7 @@ def filter_downloaded_songs(data, folder_path, threshold=0.6):
     # Obtener lista de archivos en la carpeta de canciones
     downloaded_files = os.listdir(folder_path)
 
+    print("Filtrando canciones subidas")
     print("Escaneando canciones...")
 
     # Extraer los nombres de las canciones descargadas (sin extensión)
@@ -192,7 +193,7 @@ if __name__ == "__main__":
                 "4. (30000 - 39999 ) [Mateo]",
                 "5. (40000 - 49999 ) [Sebastian]",
                 "6. (50000 - 59999 ) [xxxx]",
-                "7. (60000 - 69999 ) [xxxx]",
+                "7. (60000 - 69999 ) [Santiago]",
                 "8. (70000 - 79999 ) [xxxx]",
                 "9. (80000 - 90000 ) [xxxx]",
             ],
@@ -222,5 +223,12 @@ if __name__ == "__main__":
         data = data.loc[80000:]
 
     detect_os()
-    # data = data.loc[20104:]
-    main(data, limit=-1)
+    # data = data.loc[:]
+    try:
+        main(data, limit=-1)
+    except KeyboardInterrupt:
+        # Manejo específico de la interrupción con Ctrl+C
+        print("\nEl programa fue interrumpido con Ctrl+C")
+    finally:
+        print("Siempre me ejecuto al final de todo, incluso si fallo algo")
+        exit(0)
