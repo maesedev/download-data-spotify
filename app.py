@@ -81,15 +81,15 @@ def process_song(song):
     spotify_uri = f"http://open.spotify.com/track/{spotify_id}"
 
     if detect_os() == "Linux":
-        
-        p = Popen(["spotdl",spotify_uri,"--output",songs_folder,"--format","mp3"] 
-                  ,stderr=PIPE)
+
+        p = Popen(["spotdl", spotify_uri, "--output", songs_folder, "--format",
+                   "mp3"], stderr=PIPE)
 
         out, err = p.communicate()
 
         if p.returncode != 0:
-            print("ERROR: cancion no se pudo descargar") 
-            
+            print("ERROR: cancion no se pudo descargar")
+
     else:
         subprocess.run(
             [
