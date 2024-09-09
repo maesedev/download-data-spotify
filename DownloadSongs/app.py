@@ -19,7 +19,7 @@ def main(data, limit=-1):
         limit (int, opcional): Límite de canciones a descargar. Valor por
                                defecto: -1 (sin límite).
     """
-    
+
     global songs_folder
     songs_folder = "../__songs__"
 
