@@ -3,126 +3,110 @@ import numpy as np
 import pandas as pd
 import os
 import inquirer
+import logging
 from multiprocessing import Pool, cpu_count
+import shutil
 
-"""
-Variables globales:
-"""
-# Directorio donde se encuentran las canciones
-audio_directory = '../__songs__/'
-audio_files = [audio_directory + f for f in os.listdir(audio_directory)
-               if f.endswith('.mp3')]
 
-# Definir las columnas del archivo CSV
-columns = ['name', 'rms', 'zcr', 'tempo', 'onset_strength'] + \
-          [f'mfcc_{i}' for i in range(1, 14)] + \
-          [f'spectral_contrast_{i}' for i in range(1, 8)]
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 
-# Definir csv
-CSV = "audio_features.csv"
+# Global Variables
+AUDIO_DIRECTORY = "../__songs__/"
+CSV_FILE = "audio_features.csv"
+processed_dir = "../__songs_processed__"
+
+# Define columns for the CSV file
+COLUMNS = (
+    ["name", "rms", "zcr", "tempo", "onset_strength"]
+    + [f"mfcc_{i}" for i in range(1, 14)]
+    + [f"spectral_contrast_{i}" for i in range(1, 8)]
+)
+
+# Load existing CSV or create a new DataFrame
 try:
-    songs_csv = pd.read_csv(CSV)
-except Exception:
-    print("No hay canciones procesadas hasta el momento")
-    songs_csv = pd.DataFrame(columns=columns)
+    logging.info(f"Attempting to load CSV file: {CSV_FILE}")
+    songs_csv = pd.read_csv(CSV_FILE)
+    logging.info(f"Successfully loaded CSV file: {CSV_FILE}")
+except FileNotFoundError:
+    logging.info(f"No processed songs found at {CSV_FILE}. Creating a new CSV file.")
+    songs_csv = pd.DataFrame(columns=COLUMNS)
 
 
 def extract_features(audio_file):
     """
-    Extrae características de una canción usando librosa.
+    Extract features from an audio file using librosa.
     """
-    global songs_csv
+    audio_name = os.path.basename(audio_file).replace(".mp3", "")
+
+    # Set 'name' column as index for faster lookup (if not already set)
+    if songs_csv.index.name != "name":
+        songs_csv.set_index("name", inplace=True)
+
+    if audio_name in songs_csv.index:
+        if not os.path.exists(processed_dir):
+            os.makedirs(processed_dir)
+            logging.info(f"Created directory: {processed_dir}")
+
+        logging.info(f"Moving to {processed_dir}/{audio_name}.mp3: Already processed")
+        shutil.move(audio_file, f"{processed_dir}/{audio_name}.mp3")
+        return None, audio_name
+
     try:
-        audio_name = audio_file.replace("../__songs__/", "").replace(
-            ".mp3", "")
-
-        if songs_csv["name"].isin([audio_name]).any():
-            print(f"Saltando {audio_name}: Ya está procesada")
-            return
-
-        # Cargar el archivo de audio
+        # Load the audio file
         y, sr = librosa.load(audio_file, sr=None)
 
-        # Energía RMS
+        # Extract features
         rms = np.mean(librosa.feature.rms(y=y))
-
-        # Tasa de cruces por cero
         zcr = np.mean(librosa.feature.zero_crossing_rate(y=y))
-
-        # Tempo (Beats por Minuto)
         tempo, _ = librosa.beat.beat_track(y=y, sr=sr)
-
-        # Contraste espectral
         spectral_contrast = np.mean(
             librosa.feature.spectral_contrast(y=y, sr=sr), axis=1
         )
-
-        # Fuerza de los ataques
         onset_strength = np.mean(librosa.onset.onset_strength(y=y, sr=sr))
-
-        # Coeficientes MFCC (13)
         mfcc = np.mean(librosa.feature.mfcc(y=y, sr=sr, n_mfcc=13), axis=1)
 
-        print(f"Se procesó la canción: {audio_name}")
+        logging.info(f"Processed song: {audio_name}")
 
-        # Retornar la lista de características
-        return [audio_name, rms, zcr, tempo[0], onset_strength] + \
-            mfcc.tolist() + spectral_contrast.tolist()
+        # Return the list of features
+        return (
+            [audio_name, rms, zcr, tempo, onset_strength]
+            + mfcc.tolist()
+            + spectral_contrast.tolist()
+        ), audio_name
 
     except Exception as e:
-        print(f"Error procesando {audio_file}: {e}")
-        return None
+        logging.error(f"Error processing {audio_file}: {e}")
+        return None, audio_name
 
 
-def save_features(features):
+def process_song(audio_file):
     """
-    Guarda los resultados en el archivo CSV.
+    Process a song to extract its features and save the results to a CSV file.
     """
-    df_features = pd.DataFrame([features], columns=columns)
-    # Guardar de manera incremental en el archivo CSV
-    df_features.to_csv(CSV, mode='a', header=False,
-                       index=False)
-
-
-def process_song(path):
-    """
-    Procesa una canción para extraer sus características y guarda los
-    resultados en un archivo CSV.
-
-    Parámetros:
-    -----------
-    path : str
-        La ruta completa al archivo de audio .mp3 que se va a procesar.
-
-    La función realiza los siguientes pasos:
-    1. Llama a `extract_features` para obtener las características de la
-       canción.
-    2. Si se obtienen características válidas, llama a `save_features` para
-       guardar estos datos en el archivo CSV.
-
-    El archivo CSV se actualiza de manera incremental con las características
-    extraídas de cada canción.
-    """
-    features = extract_features(path)
+    logging.info(f"Processing song: {audio_file}")
+    features, audio_name = extract_features(audio_file)
     if features:
-        save_features(features)
+        logging.info(f"Moving to {processed_dir}/{audio_name}.mp3")
+        shutil.move(audio_file, f"{processed_dir}/{audio_name}.mp3")
+        df_features = pd.DataFrame([features], columns=COLUMNS)
+        df_features.to_csv(CSV_FILE, mode="a", header=False, index=False)
 
 
 def main():
-    f"""
-    Punto de entrada principal del programa.
-    Utiliza multiprocessing para extraer características en paralelo de
-    múltiples archivos .mp3.
-    Las características se guardan en un archivo CSV llamado
-    {CSV}.
     """
-    global songs_csv
+    Main entry point of the program.
+    Uses multiprocessing to extract features in parallel from multiple .mp3 files.
+    The features are saved incrementally to a CSV file.
+    """
     try:
-        print("\nStarting process")
+        logging.info("Starting process")
         questions = [
             inquirer.List(
                 "processing_force",
-                message="¿Qué porcentaje del CPU vas a usar?",
+                message="What percentage of CPU will you use?",
                 choices=["30%", "50%", "80%", "100%"],
             )
         ]
@@ -130,33 +114,36 @@ def main():
         processing_force = inquirer.prompt(questions)["processing_force"][:-1]
         processing_force = int(processing_force) / 100
 
-        # Obtener el número de CPUs disponibles
+        # Get the number of available CPUs
         num_cpus = cpu_count()
-
-        # Limitar a la mitad del número de CPUs
         max_workers = round(num_cpus * processing_force)
 
-        print("Number of CPUs: ", num_cpus)
-        print("Number of workers: ", max_workers, end="\n\n")
+        logging.info(f"Number of CPUs: {num_cpus}")
+        logging.info(f"Number of workers: {max_workers}")
 
-        # Escribir las cabeceras antes de procesar
-        songs_csv.to_csv(CSV, mode='w', index=False)
+        # Write headers before processing
+        songs_csv.to_csv(CSV_FILE, mode="w", index=False)
 
-        # Crear un pool de trabajadores para procesar múltiples archivos de
-        # audio en paralelo
+        # Get list of audio files
+        audio_files = [
+            os.path.join(AUDIO_DIRECTORY, f)
+            for f in os.listdir(AUDIO_DIRECTORY)
+            if f.endswith(".mp3")
+        ]
+
+        # Create a pool of workers to process multiple audio files in parallel
         with Pool(max_workers) as pool:
             pool.map(process_song, audio_files)
 
     except KeyboardInterrupt:
-        print("\nProceso interrumpido. Progreso guardado hasta el momento.")
+        logging.warning("Process interrupted. Progress saved up to this point.")
 
     except Exception as e:
-        print(f"Error en la ejecución: {e}")
+        logging.error(f"Execution error: {e}")
 
     finally:
-        print("Proceso completado. Las características se guardaron en",
-              f"{CSV}")
+        logging.info(f"Features saved to {CSV_FILE}")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

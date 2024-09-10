@@ -1,3 +1,4 @@
 */__pycache__
 __songs__
+__songs_processed__
 FeatureExtraction/audio_features.csv
