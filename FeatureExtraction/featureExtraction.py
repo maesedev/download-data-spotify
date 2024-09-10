@@ -58,6 +58,14 @@ def extract_features(audio_file):
         # Load the audio file
         y, sr = librosa.load(audio_file, sr=None)
 
+        # Check the duration of the audio file
+        duration = librosa.get_duration(y=y, sr=sr)
+
+        # If the duration is longer than 10 minutes, delete the file and continue
+        if duration > 600:  # 600 seconds = 10 minutes
+            os.remove(audio_file)
+            print(f"Deleted {audio_file} because it is longer than 10 minutes.")
+
         # Extract features
         rms = np.mean(librosa.feature.rms(y=y))
         zcr = np.mean(librosa.feature.zero_crossing_rate(y=y))
