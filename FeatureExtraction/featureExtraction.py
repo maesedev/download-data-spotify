@@ -65,6 +65,7 @@ def extract_features(audio_file):
         if duration > 600:  # 600 seconds = 10 minutes
             os.remove(audio_file)
             print(f"Deleted {audio_file} because it is longer than 10 minutes.")
+            return None, audio_name
 
         # Extract features
         rms = np.mean(librosa.feature.rms(y=y))
